@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>弾幕回避ゲーム（ボス追加）</title>
+<link rel="icon" href="https://img.cdn.nimg.jp/s/nicovideo/thumbnails/18849906/18849906.original/r1280x720l?key=91b2083fa3d7588e58004222301a6d7eeaf261702f9b2e4769d951332f3acfeb" sizes="16×16" type="image/png" /> 
+<title>シブタクがトラックを避けるゲーム</title>
 <style>
   html,body{margin:0;height:100%;background:#0b1220;color:#e5ecff;font-family:system-ui,-apple-system,Segoe UI}
   .wrap{display:grid;place-items:center;height:100%}
@@ -13,6 +14,16 @@
   button{background:#1b2a4a;color:#fff;border:0;border-radius:10px;padding:10px 14px;cursor:pointer}
   button:hover{filter:brightness(1.1)}
   .tip{opacity:.7;font-size:12px;margin-top:6px}
+
+    footer {
+           padding: 30px;
+           text-align: center;
+           font-size: 0.85rem;
+           color: rgba(255,255,255,0.5);
+           border-top: 1px solid rgba(255,255,255,0.1);
+           margin-top: 60px;
+       }
+
 </style>
 </head>
 <body>
@@ -32,6 +43,9 @@
   </div>
 </div>
 
+     <footer>
+    ©gamehub ― starcorperation All Rights Reserved
+  </footer>
 <script>
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
