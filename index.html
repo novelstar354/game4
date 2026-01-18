@@ -44,11 +44,32 @@ const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 const W = canvas.width, H = canvas.height;
 
+const BASE_W = 420;
+const BASE_H = 640;
+canvas.width = BASE_W;
+canvas.height = BASE_H;
+
+function resizeCanvas(){
+  const scale = Math.min(
+    window.innerWidth / BASE_W,
+    window.innerHeight / BASE_H
+  );
+  canvas.style.width = BASE_W * scale + "px";
+  canvas.style.height = BASE_H * scale + "px";
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+
 let running=false, paused=false;
 let last=0, t=0, score=0;
 let lives=3;
 
-// ===== 画像 =====
+let bestScore = Number(localStorage.getItem("bestScore") || 0);
+const bestSpan = document.getElementById("best");
+bestSpan.textContent = bestScore;
+
+    
 const playerImg = new Image();
 playerImg.src = 'https://www.illust-box.jp/db_img/sozai/00024/248413/watermark.jpg';
 
@@ -143,10 +164,11 @@ function update(dt){
   if(keys['ArrowDown']||keys['s'])dy++;
   if(touch){ dx=touch.x-player.x; dy=touch.y-player.y; }
  const l = Math.hypot(dx, dy) || 1;
-const spd =
-  keys["Shift"] || keys["ShiftLeft"] || keys["ShiftRight"]
-    ? player.slowSpeed
-    : player.speed;
+const isSlow =
+  keys["Shift"] || keys["ShiftLeft"] || keys["ShiftRight"] || touchCount >= 2;
+
+const spd = isSlow ? player.slowSpeed : player.speed;
+
 
 
 player.x += dx / l * spd;
@@ -294,9 +316,7 @@ document.addEventListener("touchstart", e => {
 });
 
        
-let bestScore = Number(localStorage.getItem("bestScore") || 0);
-const bestSpan = document.getElementById("best");
-bestSpan.textContent = bestScore;
+
 
 function resizeCanvas(){
   const scale = Math.min(
