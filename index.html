@@ -23,6 +23,7 @@
     <div class="hud">
       <div>🏆 Score: <span id="score">0</span></div>
       <div>❤️ Lives: <span id="lives">3</span></div>
+      <div>⭐ Best: <span id="best">0</span></div>
       <div>👑 Boss: <span id="bossHp">-</span></div>
     </div>
     <div class="btns">
@@ -60,28 +61,31 @@ const gameOverImg = new Image();
 gameOverImg.src = 'https://thumb.photo-ac.com/02/02226ab7ac89874bc9526fb23e7769e7_t.jpeg';
 
 
-document.body.addEventListener('keydown', event => {
-    if (event.ctrlKey && event.altKey && event.key === "l") {
-        alert("くそっやられた");
-        lives += 10;
-        score += 4000;
-    }
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.altKey && e.key.toLowerCase() === 'l') {
+    alert("くそっやられた");
+    lives += 10;
+    score += 4000;
+  }
 });
 
-document.body.addEventListener('keydown', event => {
-    if (event.key === "r") {
-        start.onclick=reset;
-    }
+
+document.addEventListener("keydown", e => {
+  if (e.key === "r") reset();
+  if (e.key === "p") paused = !paused;
 });
 
-document.body.addEventListener('keydown', event => {
-    if (event.key === "p") {
-        pause.onclick=()=>paused=!paused;
-    }
-});
+
 
 // ===== オブジェクト =====
-const player = {x:W/2,y:H-80,r:8,speed:3.6};
+const player = {
+  x: W/2,
+  y: H-80,
+  r: 8,
+  speed: 3.6,
+  slowSpeed: 1.6 // ← 追加
+};
+
 const bullets=[];
 const bigBullets=[];
 let boss=null;
@@ -89,13 +93,21 @@ let touch=null;
 const keys={};
 
 function reset(){
-  bullets.length=0; bigBullets.length=0;
+  bullets.length=0;
+  bigBullets.length=0;
   boss=null;
-  t=0; score=0; lives=3;
-  player.x=W/2; player.y=H-80;
-  running=true; paused=false;
+  t=0;
+  score=0;
+  lives=3;
+  player.x=W/2;
+  player.y=H-80;
+  running=true;
+  paused=false;
   last=performance.now();
+
+  bestSpan.textContent = bestScore; // 念のため
 }
+
 
 function spawnNormal(){
   bullets.push({x:Math.random()*W,y:-10,vx:0,vy:3,r:6});
@@ -125,9 +137,16 @@ function update(dt){
   if(keys['ArrowUp']||keys['w'])dy--;
   if(keys['ArrowDown']||keys['s'])dy++;
   if(touch){ dx=touch.x-player.x; dy=touch.y-player.y; }
-  const l=Math.hypot(dx,dy)||1;
-  player.x+=dx/l*player.speed;
-  player.y+=dy/l*player.speed;
+ const l = Math.hypot(dx, dy) || 1;
+const spd =
+  keys["Shift"] || keys["ShiftLeft"] || keys["ShiftRight"]
+    ? player.slowSpeed
+    : player.speed;
+
+
+player.x += dx / l * spd;
+player.y += dy / l * spd;
+
   player.x=Math.max(player.r,Math.min(W-player.r,player.x));
   player.y=Math.max(player.r,Math.min(H-player.r,player.y));
 
@@ -149,7 +168,16 @@ function update(dt){
   const hit=b=>Math.hypot(b.x-player.x,b.y-player.y)<b.r+player.r;
   if(bullets.some(hit)||bigBullets.some(hit)){
     lives--; bullets.length=0; bigBullets.length=0;
-    if(lives<=0) running=false;
+    if (lives <= 0) {
+  running = false;
+
+  if (score > bestScore) {
+    bestScore = score;
+    localStorage.setItem("bestScore", bestScore);
+    bestSpan.textContent = bestScore;
+  }
+}
+
   }
 }
 
@@ -234,7 +262,7 @@ document.addEventListener("touchstart", e => {
 
     if (input.join() === gesture.join()) {
         alert("流石に天才すぎる");
-        life = 5000;
+        lives = 5000;
         input = [];
     }
 });
@@ -248,19 +276,22 @@ document.addEventListener("touchstart", e => {
     }
 });
 
-document.addEventListener("touchend", e => {
-    if (e.changedTouches.length === 2) {
-        const endX = e.changedTouches[0].clientX;
-        if (endX - startX > 100) {
-            swipeCount++;
-            if (swipeCount === 3) {
-                alert("流石に天才すぎる");
-                life = 5000;
-                swipeCount = 0;
-            }
-        }
+
+    document.addEventListener("touchend", e => {
+  if (e.touches.length === 0 && e.changedTouches.length >= 2) {
+    swipeCount++;
+    if (swipeCount === 3) {
+      alert("流石に天才すぎる");
+      lives = 5000;
+      swipeCount = 0;
     }
+  }
 });
+
+       
+let bestScore = Number(localStorage.getItem("bestScore") || 0);
+const bestSpan = document.getElementById("best");
+bestSpan.textContent = bestScore;
 
 </script>
 </body>
