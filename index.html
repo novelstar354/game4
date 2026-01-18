@@ -9,6 +9,10 @@
   html,body{margin:0;height:100%;background:#0b1220;color:#e5ecff;font-family:system-ui,-apple-system,Segoe UI}
   .wrap{display:grid;place-items:center;height:100%}
   canvas{background:#111a2e;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.4);touch-action:none}
+canvas{
+  touch-action:none;
+  user-select:none;
+}
   .hud{display:flex;gap:16px;margin-top:10px;font-size:14px;opacity:.9}
   .btns{display:flex;gap:10px;margin-top:10px}
   button{background:#1b2a4a;color:#fff;border:0;border-radius:10px;padding:10px 14px;cursor:pointer}
@@ -292,6 +296,44 @@ document.addEventListener("touchstart", e => {
 let bestScore = Number(localStorage.getItem("bestScore") || 0);
 const bestSpan = document.getElementById("best");
 bestSpan.textContent = bestScore;
+
+function resizeCanvas(){
+  const scale = Math.min(
+    window.innerWidth / 420,
+    window.innerHeight / 640
+  );
+  canvas.style.width = 420 * scale + "px";
+  canvas.style.height = 640 * scale + "px";
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+let touchCount = 0;
+
+canvas.addEventListener("touchstart", e => {
+  e.preventDefault();
+  touchCount = e.touches.length;
+  const r = canvas.getBoundingClientRect();
+  const t = e.touches[0];
+  touch = {
+    x: (t.clientX - r.left) * (W / r.width),
+    y: (t.clientY - r.top) * (H / r.height)
+  };
+},{passive:false});
+
+canvas.addEventListener("touchmove", e => {
+  e.preventDefault();
+  touchCount = e.touches.length;
+  const r = canvas.getBoundingClientRect();
+  const t = e.touches[0];
+  touch.x = (t.clientX - r.left) * (W / r.width);
+  touch.y = (t.clientY - r.top) * (H / r.height);
+},{passive:false});
+
+canvas.addEventListener("touchend", e => {
+  touchCount = e.touches.length;
+  if(touchCount === 0) touch = null;
+},{passive:false});
 
 </script>
 </body>
